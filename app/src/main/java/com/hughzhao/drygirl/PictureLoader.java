@@ -56,30 +56,44 @@ public class PictureLoader {
                 bitmap.recycle();//减小图片对资源的消耗,这里目前理解不行，不到位
             }
         }
-        new Thread(runnable).start();
+        //OkHttp请求
+        HttpUtil.sendOkHttpRequest(imgUrl, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Message msg = new Message();
+                msg.what=1;
+                msg.obj=response.body().bytes();
+                handler.sendMessage(msg);
+            }
+        });
+//        new Thread(runnable).start();
     }
 
     /**
      * OkHttp请求
      */
-    Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            HttpUtil.sendOkHttpRequest(imgUrl, new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-
-                }
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    Message msg = new Message();
-                    msg.what=1;
-                    msg.obj=response.body().bytes();
-                    handler.sendMessage(msg);
-                }
-            });
-        }
-    };
+//    Runnable runnable = new Runnable() {
+//        @Override
+//        public void run() {
+//            HttpUtil.sendOkHttpRequest(imgUrl, new Callback() {
+//                @Override
+//                public void onFailure(Call call, IOException e) {
+//
+//                }
+//                @Override
+//                public void onResponse(Call call, Response response) throws IOException {
+//                    Message msg = new Message();
+//                    msg.what=1;
+//                    msg.obj=response.body().bytes();
+//                    handler.sendMessage(msg);
+//                }
+//            });
+//        }
+//    };
     /**
      * 传统http请求
      */
