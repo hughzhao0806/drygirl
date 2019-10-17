@@ -1,0 +1,10 @@
+<litepal>
+
+    <dbname value="Sister_image"/>
+
+    <version value="1"/>
+
+    <list>
+        <mapping class=""/>
+    </list>
+</litepal>

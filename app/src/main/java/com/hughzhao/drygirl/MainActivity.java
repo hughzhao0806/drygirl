@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import com.hughzhao.drygirl.bean.Sister;
+import com.hughzhao.drygirl.util.CacheHelper;
 import com.hughzhao.drygirl.util.Utility;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private static final String TAG="MainActivity";
     private ImageView imageView;
-    private Button next_btn,flash_btn;
+    private Button pre_btn,next_btn,flash_btn;
     private PictureLoader loader;//根据图片url获取图片的类
     private int currentNo=0;//当前图片的序号，每页共十个
     private List<String> urls;//图片的url集合
@@ -28,22 +29,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         Log.d(TAG,Thread.currentThread().toString());
         loader = new PictureLoader();
+        CacheHelper.initLRUCache();//初始化缓存
         initData();//初始化数据
         initUI();//初始化ui
+        loader.load(imageView,urls.get(currentNo));//默认加载第一张
     }
 
     /**
      * 初始化数据
      */
     public void initData(){
-        urls = new ArrayList<>();
-        Utility.parseURL(10,page);
-        List<Sister> sisters = Utility.getSisters();
-        Log.d(TAG,sisters.toString());
-        for (int i =0;i<sisters.size();i++){
-            Log.d(TAG,sisters.get(i).getUrl());
-            urls.add(sisters.get(i).getUrl());
-        }
+        urls = Utility.getImgUrl(10,page);
         Log.d("urls",String.valueOf(urls.size()));
     }
 
@@ -56,16 +52,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         next_btn.setOnClickListener(this);
         flash_btn =findViewById(R.id.flash_btn);
         flash_btn.setOnClickListener(this);
+        pre_btn = findViewById(R.id.pre_btn);
+        pre_btn.setOnClickListener(this);
+        pre_btn.setEnabled(false);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
+            case R.id.pre_btn:
+                currentNo--;
+                if(currentNo<0)
+                    currentNo=9;
+                loader.load(imageView,urls.get(currentNo));//获取当前url对应的图片
+                break;
             case R.id.next_btn:
+                pre_btn.setEnabled(true);
+                currentNo++;
                 if(currentNo>9)
                     currentNo=0;
                 loader.load(imageView,urls.get(currentNo));//获取当前url对应的图片
-                currentNo++;
                 break;
             case R.id.flash_btn:
                 page++;

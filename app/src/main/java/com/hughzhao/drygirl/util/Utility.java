@@ -8,6 +8,7 @@ import com.hughzhao.drygirl.bean.Sister;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,7 +37,6 @@ public class Utility {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 parseJsonData(response);
-                Log.d(TAG,Thread.currentThread().toString());
             }
         });
     }
@@ -71,12 +71,17 @@ public class Utility {
     }
 
     /**
-     * 获取妹子对象集合
+     * 获取图像集合
      * @return
      */
-    public static List<Sister> getSisters(){
+    public static List<String> getImgUrl(int count,int page){
+        parseURL(count,page);
         while (!flag) ;
         flag=false;
-        return sisters;
+        List<String> urls = new ArrayList<>();
+        for(int i=0;i<sisters.size();i++){
+            urls.add(sisters.get(i).getUrl());
+        }
+        return urls;
     }
 }

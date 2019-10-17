@@ -9,13 +9,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.widget.ImageView;
 
-import com.hughzhao.drygirl.util.HttpUtil;
 
-import java.io.ByteArrayOutputStream;
+import com.hughzhao.drygirl.util.CacheHelper;
+import com.hughzhao.drygirl.util.HttpUtil;
+import com.hughzhao.drygirl.util.LocalCacheUtils;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -34,6 +34,8 @@ public class PictureLoader {
                     picBytes = (byte[])msg.obj;
                     if(picBytes!=null){
                         Bitmap bitmap = BitmapFactory.decodeByteArray(picBytes,0,picBytes.length);
+                        CacheHelper.addCache(imgUrl,bitmap);//添加到缓存中
+                        LocalCacheUtils.setBitmap2Local(imgUrl,bitmap);//写到内存中
                         imgView.setImageBitmap(bitmap);//设置ImageView
                     }
                     break;
@@ -46,9 +48,19 @@ public class PictureLoader {
      * @param imgView
      * @param imgUrl
      */
-    public void load(ImageView imgView,String imgUrl){
+    public void load(ImageView imgView, final String imgUrl){
         this.imgView = imgView;
         this.imgUrl = imgUrl;
+        Bitmap b1 = CacheHelper.getCacheImage(imgUrl);
+        if(b1!=null){
+            imgView.setImageBitmap(b1);
+            return;
+        }//从缓存里取
+        Bitmap b2 = LocalCacheUtils.getBitmapFromLocal(imgUrl);
+        if(b2!=null){
+            imgView.setImageBitmap(b2);
+            return;
+        }//从内存里取
         Drawable drawable = imgView.getDrawable();
         if(drawable!=null && drawable instanceof BitmapDrawable){
             Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
