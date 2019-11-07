@@ -1,14 +1,12 @@
 package com.hughzhao.drygirl.util;
 
 
-import android.util.Log;
 
 import com.hughzhao.drygirl.bean.Sister;
 
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.litepal.crud.DataSupport;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,6 +21,8 @@ public class Utility {
     private static final String BASE_URL="http://gank.io/api/data/福利/";
     private static List<Sister> sisters;
     private static boolean flag = false;
+
+
     /**
      * 解析url，根据返回的json数据再进一步获取妹子数据
      */
@@ -69,7 +69,6 @@ public class Utility {
             e.printStackTrace();
         }
     }
-
     /**
      * 获取图像集合
      * @return
@@ -84,4 +83,5 @@ public class Utility {
         }
         return urls;
     }
+
 }

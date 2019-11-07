@@ -1,5 +1,8 @@
 package com.hughzhao.drygirl;
 
+import android.graphics.Bitmap;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,32 +10,44 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import com.hughzhao.drygirl.bean.Sister;
-import com.hughzhao.drygirl.util.CacheHelper;
+import com.hughzhao.drygirl.util.CacheUtil;
+import com.hughzhao.drygirl.util.ImageLoadUtil;
 import com.hughzhao.drygirl.util.Utility;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private static final String TAG="MainActivity";
     private ImageView imageView;
     private Button pre_btn,next_btn,flash_btn;
-    private PictureLoader loader;//根据图片url获取图片的类
+    private static ImageLoadUtil loader;//根据图片url获取图片的类
     private int currentNo=0;//当前图片的序号，每页共十个
-    private List<String> urls;//图片的url集合
+    private static List<String> urls;//图片的url集合
     private int page = 1;//当前页数
+    private Bitmap bitmap;
+
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case 1:
+                    bitmap = (Bitmap)msg.obj;
+                    imageView.setImageBitmap(bitmap);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(TAG,Thread.currentThread().toString());
-        loader = new PictureLoader();
-        CacheHelper.initLRUCache();//初始化缓存
+        loader = new ImageLoadUtil();
+        CacheUtil.initLRUCache();//初始化缓存
         initData();//初始化数据
         initUI();//初始化ui
-        loader.load(imageView,urls.get(currentNo));//默认加载第一张
+        loading(handler,currentNo);//默认加载第一张图片
     }
 
     /**
@@ -64,14 +79,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 currentNo--;
                 if(currentNo<0)
                     currentNo=9;
-                loader.load(imageView,urls.get(currentNo));//获取当前url对应的图片
+                loading(handler,currentNo);//获取当前url对应的图片
                 break;
             case R.id.next_btn:
                 pre_btn.setEnabled(true);
                 currentNo++;
                 if(currentNo>9)
                     currentNo=0;
-                loader.load(imageView,urls.get(currentNo));//获取当前url对应的图片
+                loading(handler,currentNo);//获取当前url对应的图片
                 break;
             case R.id.flash_btn:
                 page++;
@@ -79,5 +94,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 initData();
                 break;
         }
+    }
+
+    public static void loading(final Handler handler,final int currentNo){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Message msg = new Message();
+                msg.what=1;
+                msg.obj = loader.load(urls.get(currentNo));
+                handler.sendMessage(msg);
+            }
+        }).start();
     }
 }

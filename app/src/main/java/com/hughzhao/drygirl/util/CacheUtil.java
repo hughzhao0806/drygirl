@@ -3,7 +3,7 @@ package com.hughzhao.drygirl.util;
 import android.graphics.Bitmap;
 import android.util.LruCache;
 
-public class CacheHelper {
+public class CacheUtil {
 
     private static LruCache<String, Bitmap> mCache;
 

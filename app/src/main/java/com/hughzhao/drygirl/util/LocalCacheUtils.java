@@ -8,8 +8,6 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class LocalCacheUtils {
     /**
@@ -19,16 +17,14 @@ public class LocalCacheUtils {
             .getExternalStorageDirectory().getAbsolutePath() + "/cache/pics";
 
     /**
-     * 从本地SD卡获取网络图片，key是url的MD5值
+     * 从本地SD卡获取图片的bitmap
      *
      * @param url
      * @return
      */
     public static Bitmap getBitmapFromLocal(String url) {
         try {
-            String fileName = hashKeyForDisk(url);
-            Log.d("hugzhao",fileName);
-            File file = new File(FILE_PATH, fileName);
+            File file = new File(FILE_PATH, url);
             Log.d("hughzhao",FILE_PATH);
             if (file.exists()) {
                 Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(
@@ -45,17 +41,15 @@ public class LocalCacheUtils {
     }
 
     /**
-     * 向本地SD卡写网络图片
+     * 向本地SD卡写网络图片的bitmap
      *
      * @param url
      * @param bitmap
      */
     public static void setBitmap2Local(String url, Bitmap bitmap) {
         try {
-            // 文件的名字
-            String fileName = hashKeyForDisk(url);
-            // 创建文件流，指向该路径。文件名称叫做fileName
-            File file = new File(FILE_PATH, fileName);
+            // 创建文件流，指向该路径。以图片的url为文件名
+            File file = new File(FILE_PATH, url);
             // file事实上是图片，它的父级File是目录，推断一下目录是否存在，假设不存在，创建目录
             File fileParent = file.getParentFile();
             if (!fileParent.exists()) {
@@ -72,30 +66,33 @@ public class LocalCacheUtils {
     }
 
 
-
-
-    public static String hashKeyForDisk(String key) {
-        String cacheKey;
-        try {
-            final MessageDigest mDigest = MessageDigest.getInstance("MD5");
-            mDigest.update(key.getBytes());
-            cacheKey = bytesToHexString(mDigest.digest());
-        } catch (NoSuchAlgorithmException e) {
-            cacheKey = String.valueOf(key.hashCode());
-        }
-        return cacheKey;
-    }
-
-    private static String bytesToHexString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < bytes.length; i++) {
-            String hex = Integer.toHexString(0xFF & bytes[i]);
-            if (hex.length() == 1) {
-                sb.append('0');
-            }
-            sb.append(hex);
-        }
-        return sb.toString();
-    }
+//    /**
+//     * 一种转换url的方式
+//     * @param key
+//     * @return
+//     */
+//    public static String hashKeyForDisk(String key) {
+//        String cacheKey;
+//        try {
+//            final MessageDigest mDigest = MessageDigest.getInstance("MD5");
+//            mDigest.update(key.getBytes());
+//            cacheKey = bytesToHexString(mDigest.digest());
+//        } catch (NoSuchAlgorithmException e) {
+//            cacheKey = String.valueOf(key.hashCode());
+//        }
+//        return cacheKey;
+//    }
+//
+//    private static String bytesToHexString(byte[] bytes) {
+//        StringBuilder sb = new StringBuilder();
+//        for (int i = 0; i < bytes.length; i++) {
+//            String hex = Integer.toHexString(0xFF & bytes[i]);
+//            if (hex.length() == 1) {
+//                sb.append('0');
+//            }
+//            sb.append(hex);
+//        }
+//        return sb.toString();
+//    }
 
 }
